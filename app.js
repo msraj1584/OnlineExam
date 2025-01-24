@@ -35,12 +35,12 @@ app.get('/', (req, res) => {
   res.render('login');
 });
 
-// Root route
+// Login route
 app.get('/login', (req, res) => {
   res.render('login');
 });
 
-// Root route
+// Logout route
 app.get('/logout', (req, res) => {
   res.render('login');
 });
