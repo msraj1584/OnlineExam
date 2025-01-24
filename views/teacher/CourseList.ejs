@@ -1,0 +1,72 @@
+<%- include('../partials/header', { title: 'Course List' }) %>
+<%- include('../partials/navbar', { user: user }) %>
+<div class="container mt-4">
+    <main class="content">
+        <h2>Course List</h2>
+         <!-- Button to Open Modal -->
+         <button type="button" class="btn btn-success mb-4" data-bs-toggle="modal" data-bs-target="#addCourseModal">
+          Add New Course
+      </button>
+      <!-- Include the Add Course Modal Partial -->
+      <%- include('../teacher/CourseAdd') %>
+
+        <table class="table  table-bordered table-hover cell-border ">
+            <thead class="thead-dark">
+                <tr >
+                  <th style="width: 10%; text-align: center;">#</th>
+                  <th style="width: 30%;">Name</th>
+                  <th style="width: 40%;">Description</th>
+                  <th style="width: 20%; text-align: center;">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% courses.forEach((course,index) => { %>
+                    <tr>
+                        <td style="text-align: center;"><%= index+1 %></td>
+                        <td><%= course.name %></td>
+                        <td><%= course.description %></td>
+                        <td style="text-align: center;">
+                            <!-- Edit Button -->
+                            <button type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#editCourseModal<%= course._id %>">
+                                Edit
+                            </button>
+
+                            <!-- Include the Edit Course Modal Partial -->
+                            <%- include('../teacher/CourseEdit', { course: course }) %>
+
+                            <!-- Delete Button -->
+                            <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteCourseModal<%= course._id %>">
+                                Delete
+                            </button>
+
+                            <!-- Delete Confirmation Modal -->
+                            <div class="modal fade" id="deleteCourseModal<%= course._id %>" tabindex="-1" aria-labelledby="deleteCourseModalLabel<%= course._id %>" aria-hidden="true">
+                                <div class="modal-dialog modal-dialog-centered">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title" id="deleteCourseModalLabel<%= course._id %>">Delete Course</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            Are you sure you want to delete this course? This action will also delete all related exams and questions.
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                            <!-- Form for deleting course -->
+                                            <form action="/teacher/delete-course/<%= course._id %>" method="POST">
+                                                <button type="submit" class="btn btn-danger">Delete Course</button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                <% }) %>
+            </tbody>
+        </table>
+    </main>
+</div>
+
+<%- include('../partials/footer') %>
+

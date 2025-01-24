@@ -1,0 +1,37 @@
+<!-- Modal -->
+<div class="modal fade" id="editExamModal<%= exam._id %>" tabindex="-1" aria-labelledby="editExamModalLabel<%= exam._id %>" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+          <div class="modal-header">
+              <h5 class="modal-title" id="editExamModalLabel<%= exam._id %>">Edit Exam</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body" style="text-align: left;">
+              <form action="/teacher/edit-exam/<%= exam._id %>" method="POST">
+                  <div class="mb-3">
+                      <label for="examName<%= exam._id %>" class="form-label">Exam Name:</label>
+                      <input type="text" id="examName<%= exam._id %>" name="title" class="form-control" value="<%= exam.title %>" required>
+                  </div>
+                  <div class="mb-3">
+                      <label for="examDuration<%= exam._id %>" class="form-label">Duration (in minutes):</label>
+                      <input type="number" id="examDuration<%= exam._id %>" name="duration" class="form-control" value="<%= exam.duration %>" required>
+                  </div>
+                  <div class="mb-3">
+                      <label for="examDate<%= exam._id %>" class="form-label">Date:</label>
+                      <input type="date" id="examDate<%= exam._id %>" name="date" class="form-control" value="<%= exam.date.toISOString().split('T')[0] %>" required>
+                  </div>
+                  <div class="mb-3">
+                      <label for="course<%= exam._id %>" class="form-label">Course:</label>
+                      <select id="course<%= exam._id %>" name="courseId" class="form-select" required>
+                          <option value="">Select a course</option>
+                          <% courses.forEach(course => { %>
+                              <option value="<%= course._id %>" <%= course._id.equals(exam.course._id) ? 'selected' : '' %>><%= course.name %></option>
+                          <% }) %>
+                      </select>
+                  </div>
+                  <button type="submit" class="btn btn-primary">Update Exam</button>
+              </form>
+          </div>
+      </div>
+  </div>
+</div>

@@ -1,0 +1,90 @@
+<%- include('../partials/header', { title: 'Exam Details' }) %>
+<%- include('../partials/navbar', { user: user }) %>
+<div class="container mt-4">
+  <main class="content">
+    <h2>Exam Details</h2>
+
+    <!-- Button to open the modal -->
+    <button type="button" class="btn btn-success mb-3" data-bs-toggle="modal" data-bs-target="#createExamModal">
+   Add New Exam
+    </button>
+  <%- include('../teacher/ExamAdd') %>
+    <!-- Include the Add Exam Modal Partial -->
+
+    <table class="table table-bordered table-hover cell-border">
+      <thead class="thead-dark">
+        <tr>
+          <th style="width: 10%; text-align: center;">#</th>
+          <th>Exam</th>      
+          <th>Course</th>
+          <th>Date</th>
+          <th>Duration (mins)</th>
+          <th style="width: 30%; text-align: center;">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% exams.forEach((exam,index) => { %>
+          <tr>
+            <td style="text-align: center;"><%= index+1 %></td>
+            <td><%= exam.title %></td>
+            <td><%= exam.course.name %></td>
+            <td><%= exam.date.toDateString() %></td>
+            <td><%= exam.duration %></td>
+            <td style="text-align: center;">
+               <!-- Edit Button -->
+               <button type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#editExamModal<%= exam._id %>">
+                Edit
+            </button>
+            <%- include('../teacher/ExamEdit', { exam: exam }) %>
+              <!-- Delete Button -->
+              <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteExamModal" data-id="<%= exam._id %>">
+                Delete
+              </button>
+              <a href="/teacher/exam-questions/<%= exam._id %>" class="btn btn-secondary">Questions</a>
+              <a href="/teacher/exam-results/<%= exam._id %>" class="btn btn-info">Results</a>
+            </td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </main>
+</div>
+
+<!-- Confirmation Modal -->
+<div class="modal fade" id="deleteExamModal" tabindex="-1" aria-labelledby="deleteExamModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="deleteExamModalLabel">Confirm Deletion</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        Are you sure you want to delete this exam? All related questions will also be deleted.
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <form id="deleteForm" method="POST" style="display:inline;">
+          <button type="submit" class="btn btn-danger">Delete</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Script to handle dynamic modal content -->
+<script>
+  var deleteExamModal = document.getElementById('deleteExamModal');
+  deleteExamModal.addEventListener('show.bs.modal', function (event) {
+    var button = event.relatedTarget;
+    var examId = button.getAttribute('data-id');
+    var deleteForm = document.getElementById('deleteForm');
+    deleteForm.action = '/teacher/delete-exam/' + examId;
+  });
+</script>
+
+<script>
+  // Ensure date isn't in the past
+  const examDate = document.getElementById('examDate');
+  examDate.min = new Date().toISOString().split('T')[0];
+</script>
+<%- include('../partials/footer') %>

@@ -1,0 +1,119 @@
+<%- include('../partials/header', { title: 'Student Dashboard' }) %>
+<%- include('../partials/navbar', { user: user }) %>
+<div class="container mt-4">
+    <main class="content">
+        <!-- Available Exams Section -->
+        <section>
+            <h2>Available Exams (<%= availableExamCount %>)</h2>
+            <% if (availableExams.length > 0) { %>
+                <div class="table-responsive">
+                    <table class="table table-bordered table-hover">
+                        <thead class="thead-dark">
+                            <tr>
+                                <th style="width: 10%;">#</th>
+                                <th style="width: 40%;">Exam</th>                                
+                                <th style="width: 20%;">Course</th>
+                                <th style="width: 20%;">Duration (minutes)</th>
+                                <th style="width: 10%;">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% availableExams.forEach((exam, index) => { %>
+                                <tr>
+                                    <td><%= index + 1 %></td>
+                                    <td><%= exam.title %></td>
+                                    <td><%= exam.course.name %></td>
+                                    <td><%= exam.duration %></td>
+                                    <td>
+                                        <button 
+                                            class="btn btn-primary btn-sm" 
+                                            data-bs-toggle="modal" 
+                                            data-bs-target="#confirmAttendModal" 
+                                            data-exam-id="<%= exam._id %>" 
+                                            data-exam-title="<%= exam.title %>">
+                                            Attend Exam
+                                        </button>
+                                    </td>
+                                </tr>
+                            <% }) %>
+                        </tbody>
+                    </table>
+                </div>
+            <% } else { %>
+                <p class="text-muted">No exams are currently available.</p>
+            <% } %>
+        </section>
+
+        <!-- Completed Exams Section -->
+        <section class="mt-4">
+            <h2>Completed Exams (<%= completedExamCount %>)</h2>
+            <% if (completedExams.length > 0) { %>
+                <div class="table-responsive">
+                    <table class="table table-bordered table-hover">
+                        <thead class="thead-dark">
+                            <tr>
+                                <th style="width: 10%;">#</th>
+                                <th style="width: 40%;">Exam</th>
+                                <th style="width: 40%;">Course</th>
+                                <th style="width: 10%;">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% completedExams.forEach((exam, index) => { %>
+                                <tr>
+                                    <td><%= index + 1 %></td>
+                                    <td><%= exam.title %></td>
+                                    <td><%= exam.course.name %></td>
+                                    <td style="text-align: center;">
+                                        <a href="/student/view-result/<%= exam._id %>" 
+                                           class="btn btn-success btn-sm" 
+                                           aria-label="View result for <%= exam.title %>">View Result</a>
+                                    </td>
+                                </tr>
+                            <% }) %>
+                        </tbody>
+                    </table>
+                </div>
+            <% } else { %>
+                <p class="text-muted">You have not completed any exams yet.</p>
+            <% } %>
+        </section>
+    </main>
+</div>
+
+<!-- Confirmation Modal -->
+<div class="modal fade" id="confirmAttendModal" tabindex="-1" aria-labelledby="confirmAttendModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="confirmAttendModalLabel">Confirm Attend Exam</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Are you sure you want to attend <span id="examTitle" class="font-weight-bold"></span>?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <a href="#" id="confirmAttendButton" class="btn btn-primary">Yes, Attend Exam</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<%- include('../partials/footer') %>
+
+<script>
+    const confirmAttendModal = document.getElementById('confirmAttendModal');
+    const examTitleSpan = document.getElementById('examTitle');
+    const confirmAttendButton = document.getElementById('confirmAttendButton');
+
+    confirmAttendModal.addEventListener('show.bs.modal', function (event) {
+        const button = event.relatedTarget;
+        const examId = button.getAttribute('data-exam-id');
+        const examTitle = button.getAttribute('data-exam-title');
+
+        // Update modal content
+        examTitleSpan.textContent = examTitle;
+        confirmAttendButton.href = `/student/attend-exam/${examId}`;
+    });
+</script>

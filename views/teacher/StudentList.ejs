@@ -1,0 +1,63 @@
+<%- include('../partials/header', { title: 'Exam Result Details' }) %>
+<%- include('../partials/navbar', { user: user }) %>
+<div class="container mt-4">
+    <main class="content">
+      <h2>Student Details</h2> 
+      <a href="/teacher/CreateStudent" class="btn btn-success mb-3">Add New Student</a>
+           <table class="table table-bordered table-hover">
+        <thead class="table-dark">
+          <tr>
+            <th>First Name</th>
+            <th>Last Name</th>
+            <th>Email</th>
+            <th>Date of Birth</th>
+            <th>Course</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% students.forEach(student => { %>
+            <tr>
+              <td><%= student.firstName %></td>
+              <td><%= student.lastName %></td>
+              <td><%= student.email %></td>
+              <td><%= student.dob.toDateString() %></td>
+              <td><%= student.courses.map(course => course.name).join(', ') %></td>
+              <td style="text-align: center;">
+                <a href="/teacher/edit-student/<%= student._id %>" class="btn btn-warning">Edit</a>
+               
+               <!-- Delete Button -->
+               <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteStudentModal<%= student._id %>">
+                Delete
+            </button>
+
+
+                            <!-- Delete Confirmation Modal -->
+                            <div class="modal fade" id="deleteStudentModal<%= student._id %>" tabindex="-1" aria-labelledby="deleteStudentModalLabel<%= student._id %>" aria-hidden="true">
+                              <div class="modal-dialog modal-dialog-centered">
+                                  <div class="modal-content">
+                                      <div class="modal-header">
+                                          <h5 class="modal-title" id="deleteStudentModalLabel<%= student._id %>">Delete Student</h5>
+                                          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                      </div>
+                                      <div class="modal-body">
+                                          Are you sure you want to delete this Student?
+                                      </div>
+                                      <div class="modal-footer">
+                                          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                          <!-- Form for deleting Student -->
+                                          <form action="/teacher/delete-student/<%= student._id %>" method="POST">
+                                              <button type="submit" class="btn btn-danger">Delete Student</button>
+                                          </form>
+                                      </div>
+                                  </div>
+                              </div>
+                          </div>
+              </td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </main>
+  </div>
+  <%- include('../partials/footer') %>

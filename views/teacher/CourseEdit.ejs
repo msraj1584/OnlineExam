@@ -1,0 +1,26 @@
+<!-- editCourseModal.ejs -->
+<div class="modal fade" id="editCourseModal<%= course._id %>" tabindex="-1" aria-labelledby="editCourseModalLabel<%= course._id %>" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+          <div class="modal-header">
+              <h5 class="modal-title" id="editCourseModalLabel<%= course._id %>">Edit Course</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+              <form action="/teacher/edit-course/<%= course._id %>" method="POST">
+                  <div class="mb-3">
+                      <label for="name" class="form-label">Course Name:</label>
+                      <input type="text" id="name" name="name" value="<%= course.name %>" class="form-control" required>
+                  </div>
+
+                  <div class="mb-3">
+                      <label for="description" class="form-label">Description:</label>
+                      <textarea id="description" name="description" class="form-control" required><%= course.description %></textarea>
+                  </div>
+
+                  <button type="submit" class="btn btn-primary">Update Course</button>
+              </form>
+          </div>
+      </div>
+  </div>
+</div>

@@ -1,0 +1,40 @@
+
+<!-- Modal -->
+<div class="modal fade" id="createExamModal" tabindex="-1" aria-labelledby="createExamModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="createExamModalLabel">Create New Exam</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form action="/teacher/CreateExam" method="POST">
+                    <div class="mb-3">
+                        <label for="examName" class="form-label">Exam Name:</label>
+                        <input type="text" id="examName" name="title" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="examDuration" class="form-label">Duration (in minutes):</label>
+                        <input type="number" id="examDuration" name="duration" class="form-control" required min="1" title="Duration must be a positive number">
+                    </div>
+                    <div class="mb-3">
+                        <label for="examDate" class="form-label">Date:</label>
+                        <input type="date" id="examDate" name="date" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="course" class="form-label">Course:</label>
+                        <select id="course" name="courseId" class="form-select" required>
+                            <option value="">Select a course</option>
+                            <% courses.forEach(course => { %>
+                                <option value="<%= course._id %>"><%= course.name %></option>
+                            <% }) %>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Create Exam</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+

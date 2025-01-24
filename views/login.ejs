@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login</title>
+  <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background-color: #e0e1e2;
+    }
+    .login-container {
+      background: #fff;
+      padding: 2rem;
+      border-radius: 0.5rem;
+      box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    }
+    .modal-header .close {
+      margin: -1rem -1rem -1rem auto;
+    }
+  </style>
+</head>
+<body>
+  <div class="login-container">
+        <h3 class="text-center">Online Exam Portal</h3>
+    <h5 class="text-center">Login</h5>
+    <% if (typeof error !== 'undefined') { %>
+      <!-- Modal -->
+      <div class="modal fade" id="errorModal" tabindex="-1" role="dialog" aria-labelledby="errorModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title text-danger" id="errorModalLabel">Error</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
+              <%= error %>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+      <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+      <script>
+        $(document).ready(function() {
+          $('#errorModal').modal('show');
+        });
+      </script>
+    <% } %>
+    <form action="/login" method="POST">
+      <div class="form-group">
+        <label for="email">Email:</label>
+        <input type="email" id="email" name="email" class="form-control" placeholder="Email" required />
+      </div>
+      <div class="form-group">
+        <label for="password">Password:</label>
+        <div class="input-group">
+          <input type="password" id="password" name="password" class="form-control" placeholder="Password" required />
+          <div class="input-group-append">
+            <button class="btn btn-outline-secondary" type="button" id="togglePassword">
+              <i class="fa fa-eye" id="togglePasswordIcon"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="role">Role:</label>
+        <select id="role" name="role" class="form-control" required>
+          <option value="" disabled selected>Select Role</option>
+          <option value="Student">Student</option>
+          <option value="Teacher">Teacher</option>
+        </select>
+      </div>
+      <button type="submit" class="btn btn-primary btn-block">Login</button>
+    </form>
+  </div>
+  <script>
+    document.getElementById('togglePassword').addEventListener('click', function (e) {
+      const password = document.getElementById('password');
+      const icon = document.getElementById('togglePasswordIcon');
+      if (password.type === 'password') {
+        password.type = 'text';
+        icon.classList.remove('fa-eye');
+        icon.classList.add('fa-eye-slash');
+      } else {
+        password.type = 'password';
+        icon.classList.remove('fa-eye-slash');
+        icon.classList.add('fa-eye');
+      }
+    });
+  </script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+</body>
+</html>

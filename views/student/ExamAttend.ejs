@@ -1,0 +1,172 @@
+<%- include('../partials/header', { title: 'Exam Attend' }) %>
+<%- include('../partials/navbar', { user: user }) %>
+<div class="container mt-4">
+    <main class="content">
+  <link rel="stylesheet" href="/css/ExamAttend.css">
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      let currentQuestionIndex = 0;
+      const questions = document.querySelectorAll('.question');
+      const totalQuestions = questions.length;
+      let formSubmitted = false; // Flag to track form submission
+
+      // Display total questions and attended questions
+      document.getElementById('totalQuestions').textContent = totalQuestions;
+      updateAttendedQuestions();
+
+      function showQuestion(index) {
+        questions.forEach((question, i) => {
+          question.style.display = i === index ? 'block' : 'none';
+        });
+        updateButtonStates();
+      }
+
+      function updateButtonStates() {
+        document.getElementById('prevBtn').disabled = currentQuestionIndex === 0;
+        document.getElementById('nextBtn').disabled = currentQuestionIndex === totalQuestions - 1;
+      }
+
+      function updateAttendedQuestions() {
+        const attendedQuestions = Array.from(questions).filter(question => {
+          const inputs = question.querySelectorAll('input[type="radio"]');
+          return Array.from(inputs).some(input => input.checked);
+        }).length;
+        document.getElementById('attendedQuestions').textContent = attendedQuestions;
+      }
+
+      document.getElementById('prevBtn').addEventListener('click', function() {
+        if (currentQuestionIndex > 0) {
+          currentQuestionIndex--;
+          showQuestion(currentQuestionIndex);
+        }
+      });
+
+      document.getElementById('nextBtn').addEventListener('click', function() {
+        if (currentQuestionIndex < totalQuestions - 1) {
+          currentQuestionIndex++;
+          showQuestion(currentQuestionIndex);
+        }
+      });
+      document.querySelectorAll('input[type="radio"]').forEach(input => {
+        input.addEventListener('change', updateAttendedQuestions);
+      });
+
+      showQuestion(currentQuestionIndex);
+// Timer
+      const examId = '<%= exam._id %>';
+      const userId='<%= user._id%>';
+      const examDuration = <%= exam.duration * 60 %>; // Duration in seconds
+      const timerElement = document.getElementById('timer');
+      let endTime = localStorage.getItem(`endTime_${examId}_${userId}`);
+
+      if (!endTime) {
+        endTime = Date.now() + examDuration * 1000;
+        localStorage.setItem(`endTime_${examId}_${userId}`, endTime);
+      }
+
+      function updateTimer() {
+  const timeRemaining = Math.max(0, Math.floor((endTime - Date.now()) / 1000));
+  const minutes = Math.floor(timeRemaining / 60);
+  const seconds = timeRemaining % 60;
+  timerElement.textContent = `Time Remaining - ${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+
+  if (timeRemaining <= 60) {
+    timerElement.style.color = 'red'; // Highlight timer in red for the last minute
+  }
+
+  if (timeRemaining > 0) {
+    localStorage.setItem(`timeRemaining_${examId}_${userId}`, timeRemaining);
+  } else if (!formSubmitted) {
+    formSubmitted = true; // Set the flag to true to prevent multiple submissions
+    const timeoutModal = new bootstrap.Modal(document.getElementById('timeoutModal'));
+    timeoutModal.show(); // Show the timeout modal
+    setTimeout(() => {
+      localStorage.removeItem(`endTime_${examId}_${userId}`);
+      document.getElementById('examForm').submit(); // Submit the form after a short delay
+    }, 3000); // Add a slight delay for user clarity
+  }
+}
+
+
+      setInterval(updateTimer, 1000);
+
+       // Submit confirmation with modal
+       const confirmModal = new bootstrap.Modal(document.getElementById('confirmModal'));
+       document.getElementById('submitExamBtn').addEventListener('click', function(event) {
+          event.preventDefault();
+          confirmModal.show();
+        });
+
+        document.getElementById('confirmSubmit').addEventListener('click', function() {
+          formSubmitted = true;
+          localStorage.removeItem(`endTime_${examId}_${userId}`);
+          document.getElementById('examForm').submit();
+        });
+
+
+    });
+  </script>
+
+      <div id="timer" class="timer"></div>
+      <h2><%= exam.title %></h2>      
+      <div class="question-info">
+        <p>Attended/Total : <span id="attendedQuestions"></span>/<span id="totalQuestions"></span></p>
+      </div>
+      <form id="examForm" action="/student/attend-exam/<%= exam._id %>" method="POST">
+        <% exam.questions.forEach((question, index) => { %>
+          <div class="question" style="display: none;">
+            <p><%= index + 1 %>. <%= question.question %></p>
+            <% question.options.forEach((option, optionIndex) => { %>
+              <div class="form-group">
+                <input type="radio" name="answers[<%= question._id %>]" value="<%= optionIndex %>" >
+                <label><%= option %></label>
+              </div>
+            <% }) %>
+          </div>
+        <% }) %>
+        <div class="navigation-buttons">
+          <button type="button" id="prevBtn">Previous</button>
+          <button type="button" id="nextBtn">Next</button>
+        </div>
+        <button type="button" id="submitExamBtn">Submit Exam</button>
+      </form>
+    </main>
+
+    <!-- Confirmation Modal -->
+    <div class="modal fade" id="confirmModal" tabindex="-1" aria-labelledby="confirmModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="confirmModalLabel">Confirm Submission</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            Are you sure you want to submit the exam?
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+            <button type="button" id="confirmSubmit" class="btn btn-primary">Yes, Submit</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+ <!-- Auto Submit Modal -->
+  <div class="modal fade" id="timeoutModal" tabindex="-1" aria-labelledby="timeoutModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title " id="timeoutModalLabel">Time's Up</h5>
+        </div>
+        <div class="modal-body text-danger">
+          Time is up! Your answers are being submitted automatically.
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary" disabled>Submitting...</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <%- include('../partials/footer') %>

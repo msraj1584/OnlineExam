@@ -1,0 +1,49 @@
+<%- include('../partials/header', { title: 'Student Dashboard' }) %>
+<%- include('../partials/navbar', { user: user }) %>
+<div class="container mt-4">
+  <main class="content">
+    <a href="/student/examlist" class="btn btn-secondary mb-3">Back to Exam List</a>
+    <% if (result) { %>
+      <h2>Result for <%= result.exam.title %></h2>
+      <p><strong>Score:</strong> <%= result.score %> / <%= result.totalQuestions %></p>
+      <p><strong>Date:</strong> <%= new Date(result.date).toLocaleDateString('en-US', {
+        year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit'
+      }) %></p>
+
+      <% if (result.answers && result.answers.length > 0) { %>
+        <h3>Answers</h3>
+        <table class="table table-hover table-bordered">
+          <thead class="thead-dark">
+            <tr>
+              <th>#</th>
+              <th>Question</th>
+              <th>Your Answer</th>
+              <th>Correct Answer</th>
+              <th>Result</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% result.answers.forEach((answer, index) => { %>
+              <tr>
+                <td><%= index + 1 %></td>
+                <td><%= answer.question.question %></td>
+                <td><%= answer.question.options[answer.selectedAnswer] || 'No answer selected' %></td>
+                <td><%= answer.question.options[answer.question.correctAnswer] %></td>
+                <td class="<%= answer.selectedAnswer === answer.question.correctAnswer ? 'text-success' : 'text-danger' %>">
+                  <%= answer.selectedAnswer === answer.question.correctAnswer ? 'Correct' : 'Incorrect' %>
+                </td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      <% } else { %>
+        <p class="text-warning">No answers available for this exam.</p>
+      <% } %>
+    <% } else { %>
+      <div class="alert alert-danger">
+        <p>No result data available. Please check back later or contact support.</p>
+      </div>
+    <% } %>
+  </main>
+</div>
+<%- include('../partials/footer') %>

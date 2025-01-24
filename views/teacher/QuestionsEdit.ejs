@@ -1,0 +1,153 @@
+<%- include('../partials/header', { title: 'Edit Question' }) %>
+<%- include('../partials/navbar', { user: user }) %>
+<div class="container mt-4">
+  <main class="content">
+    <h2>Edit Question for <%= exam.title %></h2>
+    <a href="/teacher/exam-questions/<%= examId %>" class="btn btn-secondary mb-3 btn-sm">Back to Exam Questions</a>
+
+    <!-- Form to edit the question -->
+    <form action="/teacher/edit-question/<%= question._id %>?examId=<%= examId %>" method="POST" id="questionForm">
+      <div id="questions">        
+        <!-- Question Input -->
+        <div class="form-group">
+          <label for="question" class="font-weight-bold">Question</label>
+          <input type="text" id="question" name="question" value="<%= question.question %>" class="form-control" required />
+        </div>
+
+        <div class="form-group" id="options-container">
+          <label for="options " class="font-weight-bold">Options</label>
+          <% question.options.forEach((option, index) => { %>
+            <div class="input-group mb-2">
+              <input type="text" name="options[]" class="form-control" value="<%= option %>" required />
+              <div class="input-group-append">
+                <button type="button" class="btn btn-danger remove-option">Remove</button>
+              </div>
+              
+            </div>
+          <% }) %>
+        </div>
+        
+        <button type="button" id="addOption" class="btn btn-primary mb-3">Add Option</button>
+
+        <h3>Correct Answer</h3>
+        <div class="form-group" id="correct-answer-container">
+          <!-- Radio buttons for options will be dynamically generated here -->
+          <% question.options.forEach((option, index) => { %>
+            <div class="form-check">
+              <input type="radio" name="correctAnswer" value="<%= index %>" id="correctAnswer-<%= index %>" class="form-check-input" <%= question.correctAnswer === index ? 'checked' : '' %> />
+              <label class="form-check-label" for="correctAnswer-<%= index %>">Option <%= index + 1 %></label>
+            </div>
+          <% }) %>
+        </div>
+      </div>
+
+      <!-- Submit Button -->
+      <button type="submit" class="btn btn-success">Update Question</button>
+    </form>
+  </main>
+</div>
+
+<%- include('../partials/footer') %>
+
+<script>
+  // Function to update the radio buttons based on the current number of options
+function updateRadioButtons() {
+  const options = document.querySelectorAll("input[name='options[]']");
+  const correctAnswerContainer = document.getElementById("correct-answer-container");
+  correctAnswerContainer.innerHTML = ''; // Clear existing radio buttons
+  // If there are no options, return early to avoid error
+  if (options.length === 0) return;
+
+  options.forEach((option, index) => {
+    const radioDiv = document.createElement("div");
+    radioDiv.classList.add("form-check");
+
+    const radioInput = document.createElement("input");
+    radioInput.type = "radio";
+    radioInput.name = "correctAnswer";
+    radioInput.value = index;
+    radioInput.id = `correctAnswer-${index}`;
+    radioInput.classList.add("form-check-input");
+
+    const radioLabel = document.createElement("label");
+    radioLabel.classList.add("form-check-label");
+    radioLabel.setAttribute("for", `correctAnswer-${index}`);
+    radioLabel.textContent = `Option ${index + 1}`;
+    //radioLabel.textContent = option.value || `Option ${index + 1}`; // Default to Option X if no text entered
+
+    radioDiv.appendChild(radioInput);
+    radioDiv.appendChild(radioLabel);
+    correctAnswerContainer.appendChild(radioDiv);
+  });
+
+  // Preselect the correct answer based on the initial value
+  const correctAnswerIndex = <%= question.correctAnswer %>;  // Use EJS to inject the correctAnswer index
+  const correctAnswerRadio = document.getElementById(`correctAnswer-${correctAnswerIndex}`);
+  if (correctAnswerRadio) {
+    correctAnswerRadio.checked = true; // Preselect the correct answer
+  }
+}
+
+// Add new option field
+document.getElementById("addOption").addEventListener("click", function() {
+  const optionsContainer = document.getElementById("options-container");
+  const optionGroup = document.createElement("div");
+  optionGroup.classList.add("input-group", "mb-2");
+
+  const input = document.createElement("input");
+  input.type = "text";
+  input.name = "options[]";
+  input.classList.add("form-control");
+  input.required = true;
+
+  const appendDiv = document.createElement("div");
+  appendDiv.classList.add("input-group-append");
+
+  const removeButton = document.createElement("button");
+  removeButton.type = "button";
+  removeButton.classList.add("btn", "btn-danger", "remove-option");
+  removeButton.textContent = "Remove";
+
+  appendDiv.appendChild(removeButton);
+  optionGroup.appendChild(input);
+  optionGroup.appendChild(appendDiv);
+  optionsContainer.appendChild(optionGroup);
+
+  // Add event listener to remove option when clicked
+  removeButton.addEventListener("click", function() {
+    optionsContainer.removeChild(optionGroup);
+    updateRadioButtons(); // Update radio buttons when an option is removed
+  });
+
+  updateRadioButtons(); // Update radio buttons after adding a new option
+});
+
+// Attach remove event listener to existing options (this should be done on page load)
+document.querySelectorAll('.remove-option').forEach(removeButton => {
+  removeButton.addEventListener("click", function(event) {
+    const optionGroup = event.target.closest('.input-group');
+    optionGroup.parentNode.removeChild(optionGroup); // Remove the option group
+    updateRadioButtons(); // Update radio buttons after an option is removed
+  });
+});
+
+// Form validation before submission
+document.getElementById("questionForm").addEventListener("submit", function(event) {
+  const questionInput = document.getElementById("question");
+  const options = document.querySelectorAll("input[name='options[]']");
+  const correctAnswer = document.querySelector("input[name='correctAnswer']:checked");
+
+  // Check if all fields are filled out and if a correct answer is selected
+  if (!questionInput.value || options.length < 2 || !correctAnswer) {
+    alert("Please fill all fields, ensure there are at least 2 options, and select a correct answer.");
+    event.preventDefault(); // Prevent form submission if validation fails
+  }
+});
+
+// Call updateRadioButtons() on page load to ensure correct answer options are displayed
+document.addEventListener("DOMContentLoaded", function() {
+  updateRadioButtons();
+});
+
+
+</script>
