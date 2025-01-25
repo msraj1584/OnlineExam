@@ -28,12 +28,13 @@
       }
 
       function updateAttendedQuestions() {
-        const attendedQuestions = Array.from(questions).filter(question => {
-          const inputs = question.querySelectorAll('input[type="radio"]');
-          return Array.from(inputs).some(input => input.checked);
-        }).length;
-        document.getElementById('attendedQuestions').textContent = attendedQuestions;
-      }
+  const attendedQuestions = Array.from(questions).filter(question => {
+    const inputs = question.querySelectorAll('input[type="radio"]:checked, textarea');
+    return Array.from(inputs).some(input => input.value.trim() !== '');
+  }).length;
+  document.getElementById('attendedQuestions').textContent = attendedQuestions;
+}
+
 
       document.getElementById('prevBtn').addEventListener('click', function() {
         if (currentQuestionIndex > 0) {
@@ -48,9 +49,9 @@
           showQuestion(currentQuestionIndex);
         }
       });
-      document.querySelectorAll('input[type="radio"]').forEach(input => {
-        input.addEventListener('change', updateAttendedQuestions);
-      });
+      document.querySelectorAll('input[type="radio"], textarea').forEach(input => {
+  input.addEventListener('input', updateAttendedQuestions);
+});
 
       showQuestion(currentQuestionIndex);
 // Timer
@@ -117,15 +118,24 @@
         <% exam.questions.forEach((question, index) => { %>
           <div class="question" style="display: none;">
             <p><%= index + 1 %>. <%= question.question %></p>
-            <% question.options.forEach((option, optionIndex) => { %>
+            <% if (question.type === 'multiple-choice') { %>
+              <% question.options.forEach((option, optionIndex) => { %>
+                <div class="form-check">
+                  <input class="form-check-input" type="radio" name="answers[<%= question._id %>]" value="<%= optionIndex %>" id="question-<%= question._id %>-option-<%= optionIndex %>">
+                  <label class="form-check-label" for="question-<%= question._id %>-option-<%= optionIndex %>">
+                    <%= option %>
+                  </label>
+                </div>
+              <% }) %>
+            <% } else if (question.type === 'descriptive') { %>
               <div class="form-group">
-                <input type="radio" name="answers[<%= question._id %>]" value="<%= optionIndex %>" >
-                <label><%= option %></label>
+                <label for="descriptiveAnswer-<%= question._id %>">Your Answer:</label>
+                <textarea class="form-control" id="descriptiveAnswer-<%= question._id %>" name="answers[<%= question._id %>]" rows="4"></textarea>
               </div>
-            <% }) %>
+            <% } %>
           </div>
         <% }) %>
-        <div class="navigation-buttons">
+        <div class="d-flex justify-content-between mt-4 navigation-buttons">
           <button type="button" id="prevBtn">Previous</button>
           <button type="button" id="nextBtn">Next</button>
         </div>

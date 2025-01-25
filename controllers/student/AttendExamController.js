@@ -29,13 +29,31 @@ exports.postAttendExam = async (req, res) => {
     exam.questions.forEach(question => {
       const correctAnswer = question.correctAnswer;
       const studentAnswer = answers ? answers[question._id] : undefined;
-      if (studentAnswer !== undefined && parseInt(studentAnswer) === correctAnswer) {
-        score++;
+
+      if (question.type === 'multiple-choice') {
+        if (studentAnswer !== undefined && parseInt(studentAnswer) === correctAnswer) {
+          score++;
+        }
+        answerDetails.push({
+          question: question._id,
+          selectedAnswer: studentAnswer !== undefined ? parseInt(studentAnswer) : null,
+          grade: studentAnswer !== undefined && parseInt(studentAnswer) === correctAnswer ? 1 : 0,
+          descriptiveAnswer: null,
+        });
+      } else if (question.type === 'descriptive') {
+        const descriptiveDetails = {
+          question: question._id,
+          selectedAnswer: null,
+          descriptiveAnswer: studentAnswer || null,
+        };
+
+        // Add grade if the descriptive answer is empty
+        if (!studentAnswer || !studentAnswer.trim()) {
+          descriptiveDetails.grade = 0;
+        }
+
+        answerDetails.push(descriptiveDetails);
       }
-      answerDetails.push({
-        question: question._id,
-        selectedAnswer: studentAnswer !== undefined ? parseInt(studentAnswer) : null,
-      });
     });
 
     // Store the result

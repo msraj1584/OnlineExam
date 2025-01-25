@@ -25,20 +25,32 @@ exports.getAddQuestion = async (req, res) => {
 
 exports.postAddQuestion = async (req, res) => {
   try {
-    const { question, options, correctAnswer } = req.body;
     const { examId } = req.params;
+    const { type, question, options, correctAnswer, descriptiveAnswer } = req.body;
 
-    const questionDoc = new Question({
-      question,
-      options,
-      correctAnswer,
-    });
+    let newQuestion;
+    if (type === 'multiple-choice') {
+      newQuestion = new Question({
+        type,
+        question,
+        options, 
+        correctAnswer: parseInt(correctAnswer),
+      });
+    } else if (type === 'descriptive') {
+      newQuestion = new Question({
+        type,
+        question,
+        options: [], // Clear options if switching from multiple-choice to descriptive
+        correctAnswer: null,
+        descriptiveAnswer,
+      });
+    }
 
-    await questionDoc.save();
+    await newQuestion.save();
 
-    await Exam.findByIdAndUpdate(examId, {
-      $push: { questions: questionDoc._id },
-    });
+    const exam = await Exam.findById(examId);
+    exam.questions.push(newQuestion._id);
+    await exam.save();
 
     res.redirect(`/teacher/exam-questions/${examId}`);
   } catch (error) {
@@ -65,13 +77,28 @@ exports.postEditQuestion = async (req, res) => {
   try {
     const { questionId } = req.params;
     const { examId } = req.query;
-    const { question, options, correctAnswer } = req.body;
+    const { type, question, options, correctAnswer, descriptiveAnswer } = req.body;
 
-    await Question.findByIdAndUpdate(questionId, {
-      question,
-      options,
-      correctAnswer,
-    });
+    let updatedQuestion;
+    if (type === 'multiple-choice') {
+      updatedQuestion = {
+        type,
+        question,
+        options, // Assuming options are sent as a comma-separated string
+        correctAnswer: parseInt(correctAnswer),
+        descriptiveAnswer: null, // Clear descriptive answer if switching from descriptive to multiple-choice
+      };
+    } else if (type === 'descriptive') {
+      updatedQuestion = {
+        type,
+        question,
+        options: [], // Clear options if switching from multiple-choice to descriptive
+        correctAnswer: null,
+        descriptiveAnswer,
+      };
+    }
+
+    await Question.findByIdAndUpdate(questionId, updatedQuestion);
 
     res.redirect(`/teacher/exam-questions/${examId}`);
   } catch (error) {

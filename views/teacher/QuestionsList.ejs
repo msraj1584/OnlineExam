@@ -2,7 +2,9 @@
 <%- include('../partials/navbar', { user: user }) %>
 <div class="container mt-4">
     <main class="content">
-        <h2>Questions for <%= exam.title %></h2>
+      <div class="text-center mb-4">
+        <h2 class="text-primary ">Questions for <strong><%= exam.title %></strong></h2>
+    </div>
         <div class="mb-3">
             <a href="/teacher/exam-details" class="btn btn-secondary btn-sm">Back to Exam Details</a>
             <a href="/teacher/AddQuestions/<%= exam._id %>" class="btn btn-success btn-sm">Add New Question</a>
@@ -13,18 +15,25 @@
                     <div>
                         <strong> <%= index + 1 %>:</strong> <%= question.question %>
                     </div>
-                    <div>
+                    <% if (question.type === 'multiple-choice') { %>
+                      <div>
                         <strong>Options:</strong>
                         <ul class="list-unstyled">
-                            <% question.options.forEach((option, index) => { %>
-                                <li><span class="badge bg-light text-dark"><%= index + 1 %>. <%= option %></span></li>
-                            <% }) %>
+                          <% question.options.forEach((option, index) => { %>
+                            <li><span class="badge bg-light text-dark"><%= index + 1 %>. <%= option %></span></li>
+                          <% }) %>
                         </ul>
-                    </div>
-                    <div>
+                      </div>
+                      <div>
                         <strong>Correct Answer:</strong>
                         <span class="text-success"><%= question.options[question.correctAnswer] %></span>
-                    </div>
+                      </div>
+                    <% } else if (question.type === 'descriptive') { %>
+                      <div>
+                        <strong>Descriptive Answer:</strong>
+                        <span class="text-success"><%= question.descriptiveAnswer %></span>
+                      </div>
+                    <% } %>
                     <div class="mt-3 ">
                         <a href="/teacher/edit-question/<%= question._id %>?examId=<%= exam._id %>" class="btn btn-warning btn-sm">Edit</a>
                         <button class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteModal" data-id="<%= question._id %>" data-exam-id="<%= exam._id %>">Delete</button>

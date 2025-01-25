@@ -1,0 +1,38 @@
+<%- include('../partials/header', { title: 'Grade Descriptive Answers' }) %>
+<%- include('../partials/navbar', { user: user }) %>
+<div class="container mt-4">
+  <main class="content">
+    <div class="text-center mb-4">
+      <h2 class="text-primary"> Grade Descriptive Answers for <strong><%= exam.title %> </strong></h2>
+    </div>
+
+    <a href="/teacher/exam-results/<%= exam._id %>" class="btn btn-secondary mb-3 btn-sm">Back to Exam Results</a>
+
+    <% 
+      // Filter answers to check if any descriptive answers exist
+      const descriptiveAnswers = result.answers.filter(answer => answer.descriptiveAnswer);
+    %>
+
+    <% if (descriptiveAnswers.length > 0) { %>
+      <form action="/teacher/grade-descriptive/<%= result._id %>" method="POST">
+        <% descriptiveAnswers.forEach(answer => { %>
+          <div class="form-group">
+            <label for="question-<%= answer.question._id %>"><%= answer.question.question %></label>
+            <textarea id="question-<%= answer.question._id %>" class="form-control" readonly><%= answer.descriptiveAnswer %></textarea>
+          </div>
+          <div class="form-group">
+            <label for="grade-<%= answer.question._id %>">Grade</label>
+            <input type="number" id="grade-<%= answer.question._id %>" name="grades[<%= answer.question._id %>]" class="form-control" value="<%= answer.grade !== undefined ? answer.grade : '' %>" required />
+          </div>
+        <% }) %>
+        <div class="text-center mb-4">
+          <button type="submit" class="btn btn-success">Submit Grades</button>
+        </div>
+      </form>
+    <% } else { %>
+      <div class="alert alert-warning text-center" role="alert">
+        No descriptive answers available to grade.
+      </div>
+    <% } %>
+  </main>
+</div>

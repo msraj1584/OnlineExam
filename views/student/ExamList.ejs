@@ -7,22 +7,24 @@
             <h2>Available Exams (<%= availableExamCount %>)</h2>
             <% if (availableExams.length > 0) { %>
                 <div class="table-responsive">
-                    <table class="table table-bordered table-hover">
+                    <table class="table table-bordered table-hover cell-border">
                         <thead class="thead-dark">
                             <tr>
-                                <th style="width: 10%;">#</th>
-                                <th style="width: 40%;">Exam</th>                                
-                                <th style="width: 20%;">Course</th>
-                                <th style="width: 20%;">Duration (minutes)</th>
+                                <th style="width: 10%; text-align: center;">#</th>
+                                <th style="width: 38%;">Exam</th>                                
+                                <th style="width: 15%;">Course</th>
+                                <th style="width: 15%;">Date</th>
+                                <th style="width: 12%;">Dur. (mins)</th>
                                 <th style="width: 10%;">Action</th>
                             </tr>
                         </thead>
                         <tbody>
                             <% availableExams.forEach((exam, index) => { %>
                                 <tr>
-                                    <td><%= index + 1 %></td>
+                                    <td style="text-align: center;"><%= index + 1 %></td>
                                     <td><%= exam.title %></td>
                                     <td><%= exam.course.name %></td>
+                                    <td><%= exam.date.toDateString() %></td>
                                     <td><%= exam.duration %></td>
                                     <td>
                                         <button 
@@ -30,7 +32,8 @@
                                             data-bs-toggle="modal" 
                                             data-bs-target="#confirmAttendModal" 
                                             data-exam-id="<%= exam._id %>" 
-                                            data-exam-title="<%= exam.title %>">
+                                            data-exam-title="<%= exam.title %>"
+                                            data-exam-date="<%= exam.date %>">
                                             Attend Exam
                                         </button>
                                     </td>
@@ -49,10 +52,10 @@
             <h2>Completed Exams (<%= completedExamCount %>)</h2>
             <% if (completedExams.length > 0) { %>
                 <div class="table-responsive">
-                    <table class="table table-bordered table-hover">
+                    <table class="table table-bordered table-hover cell-border">
                         <thead class="thead-dark">
                             <tr>
-                                <th style="width: 10%;">#</th>
+                                <th style="width: 10%; text-align: center;">#</th>
                                 <th style="width: 40%;">Exam</th>
                                 <th style="width: 40%;">Course</th>
                                 <th style="width: 10%;">Action</th>
@@ -61,7 +64,7 @@
                         <tbody>
                             <% completedExams.forEach((exam, index) => { %>
                                 <tr>
-                                    <td><%= index + 1 %></td>
+                                    <td style="text-align: center;"><%= index + 1 %></td>
                                     <td><%= exam.title %></td>
                                     <td><%= exam.course.name %></td>
                                     <td style="text-align: center;">
@@ -99,11 +102,28 @@
         </div>
     </div>
 </div>
-
+<!-- Error Modal -->
+<div class="modal fade" id="errorModal" tabindex="-1" aria-labelledby="errorModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title text-danger" id="errorModalLabel">Sorry :&#40; </h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          You cannot attend an exam scheduled for a future date.
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
 <%- include('../partials/footer') %>
 
 <script>
     const confirmAttendModal = document.getElementById('confirmAttendModal');
+    const errorModal = document.getElementById('errorModal');
     const examTitleSpan = document.getElementById('examTitle');
     const confirmAttendButton = document.getElementById('confirmAttendButton');
 
@@ -111,9 +131,16 @@
         const button = event.relatedTarget;
         const examId = button.getAttribute('data-exam-id');
         const examTitle = button.getAttribute('data-exam-title');
-
+        const examDate = new Date(button.getAttribute('data-exam-date'));
+        const currentDate = new Date();
+        if (examDate > currentDate) {
+        event.preventDefault();
+        const errorModalInstance = new bootstrap.Modal(errorModal);
+        errorModalInstance.show();
+      } else {
         // Update modal content
         examTitleSpan.textContent = examTitle;
         confirmAttendButton.href = `/student/attend-exam/${examId}`;
+      }
     });
 </script>

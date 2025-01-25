@@ -9,7 +9,9 @@ const resultSchema = new mongoose.Schema({
   answers: [
     {
       question: { type: mongoose.Schema.Types.ObjectId, ref: 'Question', required: true },
-      selectedAnswer: { type: Number},
+      selectedAnswer: { type: Number }, // Index of the selected answer for multiple-choice questions
+      descriptiveAnswer: { type: String }, // Answer for descriptive questions
+      grade: { type: Number },
     },
   ],
 }, { collection: 'result' });

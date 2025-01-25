@@ -15,7 +15,8 @@ exports.getViewResult = async (req, res) => {
     // Fetch the result for the given exam and student
     const result = await Result.findOne({ exam: examId, student: studentId }).populate('exam').populate('answers.question');
     if (!result) {
-      return res.status(404).send('Result not found');
+      return res.render('student/ViewResult', { user: req.user, result });
+       
     }
 
     res.render('student/ViewResult', { user: req.user, result });

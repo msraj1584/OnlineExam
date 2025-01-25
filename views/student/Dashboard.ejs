@@ -5,10 +5,88 @@
       <h2>Welcome, <%= user.name %>!</h2>
       <p>This is your dashboard.</p>
 
-      <div class="dashboard-overview">
-        
+      
+    <div class="dashboard-overview">
+      <div class="overview-item">
+        <h3>Available Exams</h3>
+        <p><%= availableExamCount %></p>
       </div>
+      <div class="overview-item">
+        <h3>Completed Exams</h3>
+        <p><%= completedExamCount %></p>
+      </div>
+    </div>
 
     </main>
   </div>
   <%- include('../partials/footer') %>
+
+  <style>
+    /* General Container Styling */
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+  }
+  
+  /* Header and Welcome Message Styling */
+  .welcome-message {
+    font-size: 2rem;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 10px;
+  }
+  
+  .dashboard-description {
+    font-size: 1.2rem;
+    color: #777;
+    margin-bottom: 30px;
+  }
+  
+  /* Dashboard Overview Layout */
+  .dashboard-overview {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+  }
+  
+  .overview-item {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+  
+  .overview-item:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  }
+  
+  .overview-item h3 {
+    font-size: 1.5rem;
+    color: #007bff;
+    margin-bottom: 10px;
+  }
+  
+  .overview-item p {
+    font-size: 2rem;
+    font-weight: bold;
+    color: #333;
+  }
+  
+  /* Responsive Design */
+  @media (max-width: 768px) {
+    .dashboard-overview {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .dashboard-overview {
+      grid-template-columns: 1fr;
+    }
+  }
+  
+  </style>

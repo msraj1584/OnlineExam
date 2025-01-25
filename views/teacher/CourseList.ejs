@@ -2,7 +2,9 @@
 <%- include('../partials/navbar', { user: user }) %>
 <div class="container mt-4">
     <main class="content">
-        <h2>Course List</h2>
+        <div class="text-center mb-4">
+            <h2 class="text-primary font-weight-bold">Course List</h2>
+        </div>
          <!-- Button to Open Modal -->
          <button type="button" class="btn btn-success mb-4" data-bs-toggle="modal" data-bs-target="#addCourseModal">
           Add New Course
@@ -10,7 +12,7 @@
       <!-- Include the Add Course Modal Partial -->
       <%- include('../teacher/CourseAdd') %>
 
-        <table class="table  table-bordered table-hover cell-border ">
+        <table class="table table-bordered table-hover cell-border">
             <thead class="thead-dark">
                 <tr >
                   <th style="width: 10%; text-align: center;">#</th>

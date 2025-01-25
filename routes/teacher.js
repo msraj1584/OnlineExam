@@ -6,6 +6,8 @@ const courseController = require('../controllers/teacher/courseController');
 const questionController = require('../controllers/teacher/questionController');
 const dashboardController = require('../controllers/teacher/dashboardController');
 const resultController = require('../controllers/teacher/resultController');
+const gradeController = require('../controllers/teacher/gradeController');
+
 const { authenticateJWT } = require('../middleware/authMiddleware');
 
 // Use the authenticateJWT middleware for all routes in this router
@@ -55,4 +57,8 @@ router.post('/delete-student/:studentId', studentController.deleteStudent);
 // RESULTS
 router.get('/exam-results/:examId', resultController.getExamResults);
 router.get('/exam-result-details/:resultId', resultController.getExamResultDetails);
+// GRADES
+router.get('/grade-descriptive/:resultId', gradeController.getGradeDescriptive);
+router.post('/grade-descriptive/:resultId', gradeController.postGradeDescriptive);
+
 module.exports = router;

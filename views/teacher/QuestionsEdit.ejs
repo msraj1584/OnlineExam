@@ -2,54 +2,68 @@
 <%- include('../partials/navbar', { user: user }) %>
 <div class="container mt-4">
   <main class="content">
-    <h2>Edit Question for <%= exam.title %></h2>
+    <div class="text-center mb-4">
+      <h2 class="text-primary ">Edit Question for <strong> <%= exam.title %></strong></h2>
+  </div>
     <a href="/teacher/exam-questions/<%= examId %>" class="btn btn-secondary mb-3 btn-sm">Back to Exam Questions</a>
-
-    <!-- Form to edit the question -->
+    
     <form action="/teacher/edit-question/<%= question._id %>?examId=<%= examId %>" method="POST" id="questionForm">
-      <div id="questions">        
-        <!-- Question Input -->
-        <div class="form-group">
-          <label for="question" class="font-weight-bold">Question</label>
-          <input type="text" id="question" name="question" value="<%= question.question %>" class="form-control" required />
-        </div>
+      <div class="form-group">
+        <label for="type" class="font-weight-bold">Question Type</label>
+        <select id="type" name="type" class="form-control" onchange="toggleQuestionType()" required>
+          <option value="" disabled>Select Question Type</option>
+          <option value="multiple-choice" <%= question.type === 'multiple-choice' ? 'selected' : '' %>>Multiple Choice</option>
+          <option value="descriptive" <%= question.type === 'descriptive' ? 'selected' : '' %>>Descriptive</option>
+        </select>
+      </div>
+      
+      <div class="form-group">
+        <label for="question" class="font-weight-bold">Question</label>
+        <input type="text" id="question" name="question" class="form-control" value="<%= question.question %>" required />
+      </div>
 
+      <div id="multiple-choice-fields" style="display: <%= question.type === 'multiple-choice' ? 'block' : 'none' %>;">
         <div class="form-group" id="options-container">
-          <label for="options " class="font-weight-bold">Options</label>
+          <label for="options" class="font-weight-bold">Options</label>
           <% question.options.forEach((option, index) => { %>
             <div class="input-group mb-2">
               <input type="text" name="options[]" class="form-control" value="<%= option %>" required />
               <div class="input-group-append">
                 <button type="button" class="btn btn-danger remove-option">Remove</button>
               </div>
-              
             </div>
           <% }) %>
         </div>
-        
-        <button type="button" id="addOption" class="btn btn-primary mb-3">Add Option</button>
-
-        <h3>Correct Answer</h3>
-        <div class="form-group" id="correct-answer-container">
-          <!-- Radio buttons for options will be dynamically generated here -->
-          <% question.options.forEach((option, index) => { %>
-            <div class="form-check">
-              <input type="radio" name="correctAnswer" value="<%= index %>" id="correctAnswer-<%= index %>" class="form-check-input" <%= question.correctAnswer === index ? 'checked' : '' %> />
-              <label class="form-check-label" for="correctAnswer-<%= index %>">Option <%= index + 1 %></label>
-            </div>
-          <% }) %>
+        <button type="button" class="btn btn-primary mb-2" id="addOption">Add Option</button>
+        <div class="form-group">
+          <label for="correctAnswer" class="font-weight-bold">Correct Answer</label>
+          <div class="form-group" id="correct-answer-container">
+            <!-- Radio buttons for options will be dynamically generated here -->
+            <% question.options.forEach((option, index) => { %>
+              <div class="form-check">
+                <input type="radio" name="correctAnswer" value="<%= index %>" id="correctAnswer-<%= index %>" class="form-check-input" <%= question.correctAnswer === index ? 'checked' : '' %> />
+                <label class="form-check-label" for="correctAnswer-<%= index %>">Option <%= index + 1 %></label>
+              </div>
+            <% }) %>
+          </div>
         </div>
       </div>
 
-      <!-- Submit Button -->
-      <button type="submit" class="btn btn-success">Update Question</button>
+      <div id="descriptive-fields" style="display: <%= question.type === 'descriptive' ? 'block' : 'none' %>;">
+        <div class="form-group">
+          <label for="descriptiveAnswer" class="font-weight-bold">Descriptive Answer</label>
+          <textarea id="descriptiveAnswer" name="descriptiveAnswer" class="form-control"><%= question.descriptiveAnswer %></textarea>
+        </div>
+      </div>
+      <div class="text-center mb-4">
+        <button type="submit" class="btn btn-success">Save Changes</button>
+      </div>
     </form>
   </main>
 </div>
 
-<%- include('../partials/footer') %>
-
 <script>
+
   // Function to update the radio buttons based on the current number of options
 function updateRadioButtons() {
   const options = document.querySelectorAll("input[name='options[]']");
@@ -87,13 +101,52 @@ function updateRadioButtons() {
     correctAnswerRadio.checked = true; // Preselect the correct answer
   }
 }
+  function toggleQuestionType() {
+  const type = document.getElementById('type').value;
+  const multipleChoiceFields = document.getElementById('multiple-choice-fields');
+  const descriptiveFields = document.getElementById('descriptive-fields');
+  const correctAnswerInput = document.getElementById('correctAnswer');
+  const descriptiveAnswerInput = document.getElementById('descriptiveAnswer');
+  const optionInputs = document.querySelectorAll('input[name="options[]"]');
+
+  if (type === 'multiple-choice') {
+    multipleChoiceFields.style.display = 'block';
+    descriptiveFields.style.display = 'none';
+
+    // Add required to multiple-choice fields if they exist
+    if (correctAnswerInput) correctAnswerInput.required = true;
+    if (descriptiveAnswerInput) descriptiveAnswerInput.required = false;
+    // Add required to all options
+    optionInputs.forEach(input => {
+      input.required = true;
+    });
+  } else if (type === 'descriptive') {
+    multipleChoiceFields.style.display = 'none';
+    descriptiveFields.style.display = 'block';
+
+// Add required to descriptive fields if they exist
+if (correctAnswerInput) correctAnswerInput.required = false;
+    if (descriptiveAnswerInput) descriptiveAnswerInput.required = true;
+
+    // Remove required from all options
+    optionInputs.forEach(input => {
+      input.required = false;
+    });
+  }
+}
 
 // Add new option field
 document.getElementById("addOption").addEventListener("click", function() {
   const optionsContainer = document.getElementById("options-container");
   const optionGroup = document.createElement("div");
   optionGroup.classList.add("input-group", "mb-2");
+  const options = document.querySelectorAll('input[name="options[]"]'); // Existing option inputs
 
+// Limit to 10 options
+if (options.length >= 5) {
+  alert("You cannot add more than 5 options.");
+  return;
+}
   const input = document.createElement("input");
   input.type = "text";
   input.name = "options[]";
@@ -133,21 +186,24 @@ document.querySelectorAll('.remove-option').forEach(removeButton => {
 
 // Form validation before submission
 document.getElementById("questionForm").addEventListener("submit", function(event) {
-  const questionInput = document.getElementById("question");
-  const options = document.querySelectorAll("input[name='options[]']");
-  const correctAnswer = document.querySelector("input[name='correctAnswer']:checked");
+    const questionInput = document.getElementById("question");
+    const options = document.querySelectorAll("input[name='options[]']");
+    const correctAnswer = document.querySelector("input[name='correctAnswer']:checked");
+    const type = document.getElementById('type').value;
+    // Check if all fields are filled out and if a correct answer is selected
+    if (!questionInput.value ) {
+      alert("Please fill all fields.");
+      event.preventDefault(); // Prevent form submission if validation fails
+    }
 
-  // Check if all fields are filled out and if a correct answer is selected
-  if (!questionInput.value || options.length < 2 || !correctAnswer) {
-    alert("Please fill all fields, ensure there are at least 2 options, and select a correct answer.");
-    event.preventDefault(); // Prevent form submission if validation fails
-  }
-});
-
-// Call updateRadioButtons() on page load to ensure correct answer options are displayed
-document.addEventListener("DOMContentLoaded", function() {
+    // Check if correct answer is selected for multiple-choice questions
+    if (type === 'multiple-choice' && !correctAnswer) {
+      alert("Please select a correct answer.");
+      event.preventDefault(); // Prevent form submission if validation fails
+    }
+  });
+  document.addEventListener('DOMContentLoaded', function () {
+  toggleQuestionType();
   updateRadioButtons();
 });
-
-
 </script>

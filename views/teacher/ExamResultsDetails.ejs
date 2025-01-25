@@ -3,45 +3,62 @@
 <div class="container mt-4">
     <main class="content">
         <div class="text-center mb-4">
-            <h2 class="text-primary font-weight-bold">Exam: <%= exam.title %></h2>
+            <h2 class="text-primary "> <strong><%= exam.title %> </strong>: Result Details</h2>
         </div>
         <div class="d-flex justify-content-between align-items-center mb-4">
-          <a href="/teacher/exam-results/<%= exam._id %>" class="btn btn-secondary">Back to Exam Result Details</a>
-          <h3 class="text-secondary">Student: <%= result.student.firstName + ' ' + result.student.lastName %></h3>
+          <a href="/teacher/exam-results/<%= exam._id %>" class="btn btn-secondary btn-sm">Back to Exam Result Details</a>
+          <h3 class="text-secondary">Student: <strong> <%= result.student.firstName + ' ' + result.student.lastName %></strong></h3>
         </div>
-        <div class="mb-4">
-            <p><strong>Score:</strong> <%= result.score %> / <%= result.totalQuestions %></p>
-            <p><strong>Percentage:</strong> 
-                <span class="<%= ((result.score / result.totalQuestions) * 100) >= 50 ? 'text-success' : 'text-danger' %>">
-                    <%= ((result.score / result.totalQuestions) * 100).toFixed(2) %> %
-                </span>
-            </p>
-        </div>
-        <h3 class="mt-4 text-secondary">Question-wise Answers</h3>
+        <div class="mb-4 text-end">
+          <h3>Score: <strong><%= result.score %> </strong></h3>
+          <p>Submitted On :<strong><%= new Date(result.date).toLocaleDateString('en-US', {
+            year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit'
+          }) %> </strong> </p>
+      </div>
         <div class="table-responsive mt-3">
             <table class="table table-bordered table-hover cell-border">
                 <thead class="thead-dark text-center">
                     <tr>
-                        <th style="width: 10%;">#</th>
+                        <th style="width: 10%; text-align: center;">#</th>
                         <th>Question</th>
                         <th>Correct Answer</th>
                         <th>Student's Answer</th>
+                        <th style="width: 15%;">Grade</th>
                         <th style="width: 15%;">Result</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <% result.answers.forEach((answer, index) =>  { %>
-                        <tr>
-                            <td class="text-center"><%= index + 1 %></td>
-                            <td><%= answer.question.question %></td>
-                            <td><%= answer.question.options[answer.question.correctAnswer] %></td>
-                            <td><%= answer.question.options[answer.selectedAnswer] %></td>
-                            <td class="text-center <%= answer.selectedAnswer === answer.question.correctAnswer ? 'bg-success text-white' : 'bg-danger text-white' %>">
-                                <%= answer.selectedAnswer === answer.question.correctAnswer ? 'Correct' : 'Incorrect' %>
-                            </td>
-                        </tr>
-                    <% }) %>
-                </tbody>
+                  <% result.answers.forEach((answer, index) => { %>
+                    <% if (answer && answer.question) { %>
+                      <tr>
+                        <td style="text-align: center;"><%= index + 1 %></td>
+                        <td><%= answer.question.question %></td>
+                        <td>
+                          <% if (answer.question.type === 'multiple-choice') { %>
+                            <%= answer.question.options[answer.question.correctAnswer] %>
+                          <% } else { %>
+                            <%= answer.question.descriptiveAnswer %>
+                          <% } %>
+                        </td>
+                        <td>
+                          <% if (answer.question.type === 'multiple-choice') { %>
+                            <%= answer.question.options[answer.selectedAnswer] %>
+                          <% } else { %>
+                            <%= answer.descriptiveAnswer %>
+                          <% } %>
+                        </td>
+                        <td class="text-center">
+                          <%= answer.grade !== undefined ? answer.grade : 'N/A' %>
+                        </td>
+                        <td class="text-center <%= answer.grade === undefined ? 'bg-warning text-dark' : answer.grade > 0 ? 'bg-success text-white' : 'bg-danger text-white' %>">
+                          <span class="font-weight-bold">
+                            <%= answer.grade === undefined ? 'Waiting' : answer.grade > 0 ? 'Correct' : 'Incorrect' %>
+                          </span>
+                        </td>
+                      </tr>
+                    <% }  %>
+                  <% }) %>                
+                  </tbody>
             </table>
         </div>
     </main>
