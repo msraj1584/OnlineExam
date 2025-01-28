@@ -11,9 +11,8 @@ router.get('/login', (req, res) => {
 router.post('/login', authController.login);
 
 // Logout route
-router.get('/logout', (req, res) => {
-  res.render('login');
-});
+router.get('/logout', authController.logout);
+
 
 // Password reset request route
 router.get('/password-reset', (req, res) => {

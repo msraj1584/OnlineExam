@@ -1,3 +1,4 @@
+const bcrypt = require('bcrypt');
 const User = require('../../models/User');
 const Student = require('../../models/Student');
 const Course = require('../../models/Course');
@@ -96,7 +97,8 @@ exports.postEditStudent = async (req, res) => {
     };
 
     if (password) {
-      userUpdate.password = password;
+      const salt = await bcrypt.genSalt(10);
+      userUpdate.password = await bcrypt.hash(password, salt);
     }
 
     await User.findByIdAndUpdate(student.user._id, userUpdate);
