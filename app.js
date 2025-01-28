@@ -7,6 +7,7 @@ const bodyParser = require('body-parser');
 const authRoutes = require('./routes/auth');
 const studentRoutes = require('./routes/student');
 const teacherRoutes = require('./routes/teacher');
+const User = require('./models/User'); // Import the User model
 
 // Load environment variables
 dotenv.config();
@@ -35,10 +36,32 @@ app.get('/', (req, res) => {
   res.render('login');
 });
 
+// Function to create a default Teacher user
+const createDefaultTeacher = async () => {
+  try {
+    const existingTeacher = await User.findOne({ role: 'Teacher' });
+    if (!existingTeacher) {
+      const defaultTeacher = new User({
+        name: 'Teacher',
+        email: 't@msraj.in',
+        password: 't', // You should hash the password in a real application
+        role: 'Teacher'
+      });
+
+      await defaultTeacher.save();
+      console.log('Default Teacher user created');
+    } else {
+      console.log('Default Teacher user already exists');
+    }
+  } catch (error) {
+    console.error('Error creating default Teacher user', error);
+  }
+};
 // Connect to MongoDB
 mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
-  .then(() => {
+  .then(async() => {
     console.log('Connected to MongoDB');
+    await createDefaultTeacher(); // Create default Teacher user
     // Start the server
     app.listen(process.env.PORT, () => {
       console.log(`Server is running on http://localhost:${process.env.PORT}`);
