@@ -36,7 +36,7 @@ app.get('/', (req, res) => {
   res.render('login');
 });
 
-// Function to create a default Teacher user
+// Function to create a default Teacher user on First run of the application. 
 const createDefaultTeacher = async () => {
   try {
     const existingTeacher = await User.findOne({ role: 'Teacher' });
@@ -44,15 +44,13 @@ const createDefaultTeacher = async () => {
       const defaultTeacher = new User({
         name: 'Teacher',
         email: 't@msraj.in',
-        password: 't', // You should hash the password in a real application
+        password: 't', 
         role: 'Teacher'
       });
 
       await defaultTeacher.save();
       console.log('Default Teacher user created');
-    } else {
-      console.log('Default Teacher user already exists');
-    }
+    } 
   } catch (error) {
     console.error('Error creating default Teacher user', error);
   }
