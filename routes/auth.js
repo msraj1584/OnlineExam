@@ -29,4 +29,13 @@ router.get('/password-reset/:token', (req, res) => {
 
 router.post('/password-reset/:token', passwordResetController.resetPassword);
 
+
+
+// Password reset with OTP request route
+router.get('/password-reset-otp', (req, res) => {
+  res.render('PasswordResetWithOTP');
+});
+
+router.post('/password-reset-req-otp', passwordResetController.requestPasswordResetWithOTP);
+router.post('/password-reset-otp', passwordResetController.resetPasswordWithOTP);
 module.exports = router;
